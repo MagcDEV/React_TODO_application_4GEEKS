@@ -1,47 +1,67 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
-const Todos = props => {
+const Todos = () => {
 	let [tasks, setTasks] = useState([]);
 
 	const handleKeyDown = event => {
 		if (event.key == "Enter") {
-			setTasks([...tasks, event.target.value]);
+			setTasks([
+				...tasks,
+				{
+					id: tasks.length + 1,
+					tareas: event.target.value,
+					buttonVisible: false
+				}
+			]);
 		}
 	};
 
-	/*
-    // initialize the tasks variable to an empty array and hook it to setTasks function
-    const [ tasks, setTasks] = useState([]);
+	const handleRemove = todo_x => {
+		let newTasks = tasks.filter(item => item.id !== todo_x);
+		setTasks(newTasks);
+	};
 
-    // this function useEffect will run only one time, when the component is finally loaded the first time.
-    useEffect(() =>
-        // here i fetch my todos from the API
-        fetch('https://assets.breatheco.de/apis/fake/todos/user/alesanchezr')
-            .then(r => r.json())
-            .then(data => setTasks(data)) //here it re-set the variable tasks with the incoming data
-    , []);
-
-    return <ul>{tasks.map(t => <li>{t.label}</li>)}</ul>;
-*/
 	return (
 		<div className="container mt-5 lista">
 			<ul className="list-group p-2">
 				<input
+					placeholder="What needs to be done?"
 					onKeyDown={handleKeyDown}
 					type="text"
 					className="form-control"
 				/>
-				{tasks.map(function(x) {
+				{tasks.map(x => {
 					return (
-						<li key={x} className="list-group-item">
-							{x}
+						<li
+							key={x.id}
+							onMouseOver={() => {
+								let objIndex = tasks.findIndex(
+									obj => obj.id == x.id
+								);
+								tasks[objIndex].buttonVisible = true;
+								setTasks([...tasks]);
+							}}
+							onMouseOut={() => {
+								let objIndex = tasks.findIndex(
+									obj => obj.id == x.id
+								);
+								tasks[objIndex].buttonVisible = false;
+								setTasks([...tasks]);
+							}}
+							className="list-group-item">
+							{x.tareas}
+							<button
+								type="button"
+								onClick={() => handleRemove(x.id)}
+								className={`btn-close position-absolute end-0 me-3 ${
+									x.buttonVisible ? "visible" : "invisible"
+								}`}
+								aria-label="Close"></button>
 						</li>
 					);
 				})}
-				<li className="list-group-item">primera tarea</li>
-				<li className="list-group-item">primera tarea</li>
-				<li className="list-group-item">primera tarea</li>
 			</ul>
+			<div>{tasks.length} item left</div>
 		</div>
 	);
 };
